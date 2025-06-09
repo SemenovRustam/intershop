@@ -1,19 +1,24 @@
 package com.praktikum.semenov.intershop.service;
 
+import com.praktikum.semenov.intershop.dto.ItemDto;
 import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.exception.ResourceNotFoundException;
+import com.praktikum.semenov.intershop.mapper.ItemMapper;
 import com.praktikum.semenov.intershop.repository.ItemRepository;
+import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
 
-    @Autowired
-    private ItemRepository itemRepository; // Репозиторий для работы с товарами
+    private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
     // Получение страницы товаров с учетом поиска
     public Page<Item> getItems(String search, Pageable pageable) {
@@ -27,11 +32,6 @@ public class ItemService {
     // Получение товара по ID
     public Optional<Item> getItemById(Long id) {
         return itemRepository.findById(id);
-    }
-
-    // Добавление нового товара
-    public Item addItem(Item item) {
-        return itemRepository.save(item);
     }
 
     // Обновление существующего товара
@@ -53,6 +53,14 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
         itemRepository.delete(item);
+    }
+
+    public List<ItemDto> findAllItemByIds(Iterable<Long> ids) {
+        List<Item> allById = itemRepository.findAllById(ids);
+        return allById
+                .stream()
+                .map(itemMapper::toItemDto)
+                .toList();
     }
 }
 

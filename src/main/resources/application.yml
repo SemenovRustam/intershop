@@ -12,6 +12,10 @@ spring:
     password:
   liquibase:
     change-log: classpath:db/changelog/changelog.yml
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
 
 logging:
   level:
