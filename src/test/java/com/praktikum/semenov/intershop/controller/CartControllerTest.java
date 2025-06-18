@@ -48,7 +48,7 @@ class CartControllerTest {
 
         mockMvc.perform(get("/cart/items"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("/cart"))
+                .andExpect(view().name("cart"))
                 .andExpect(model().attribute("items", sampleItems))
                 .andExpect(model().attribute("total", new BigDecimal("10.00")))
                 .andExpect(model().attribute("empty", false));

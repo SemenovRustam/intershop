@@ -26,7 +26,7 @@ public class MainController {
     private final ItemService itemService;
     private final CartService cartService;
 
-    @GetMapping("/")
+    @GetMapping()
     public String getItems(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") SortDto sort,
@@ -49,7 +49,7 @@ public class MainController {
         return "main";
     }
 
-    @PostMapping("/{itemId}")
+    @PostMapping("{itemId}")
     public String changeItemCount(
             @PathVariable Long itemId,
             @RequestParam String action

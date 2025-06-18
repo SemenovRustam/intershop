@@ -32,7 +32,7 @@ public class CartController {
         model.addAttribute("total", totalPrice);
         model.addAttribute("empty", isEmpty);
 
-        return "/cart";
+        return "cart";
     }
 
     @PostMapping("/{itemId}")
