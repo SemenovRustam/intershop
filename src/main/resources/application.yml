@@ -1,4 +1,8 @@
 spring:
+  r2dbc:
+    username: postgres
+    password:
+    url: jdbc:postgresql://localhost:5432/intershop
   application:
     name: intershop
   thymeleaf:
@@ -6,10 +10,10 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     cache: false
-  datasource:
-    url: jdbc:postgresql://localhost:5432/intershop
-    username: postgres
-    password:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/intershop
+#    username: postgres
+#    password:
   liquibase:
     change-log: classpath:db/changelog/changelog.yml
   jpa:

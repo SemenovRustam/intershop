@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequestMapping("/cart/items")
@@ -23,17 +24,20 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping()
-    public String getCartItems(Model model) {
-        List<ItemDto> cartItems = cartService.getAllCartItems();
-        BigDecimal totalPrice = cartService.getTotalPrice(cartItems);
-        boolean isEmpty = cartService.isCartEmpty();
+    public Mono<String> getCartItems(Model model) {
+        Mono<List<ItemDto>> cartItems = cartService.getAllCartItems();
+        Mono<BigDecimal> totalPrice = cartService.getTotalPrice(cartItems);
+        Mono<Boolean> cartEmpty = cartService.isCartEmpty();
 
-        model.addAttribute("items", cartItems);
-        model.addAttribute("total", totalPrice);
-        model.addAttribute("empty", isEmpty);
-
-        return "cart";
+        return Mono.zip(cartItems, totalPrice, cartEmpty)
+                .flatMap(tuple -> {
+                    model.addAttribute("items", tuple.getT1());
+                    model.addAttribute("total", tuple.getT2());
+                    model.addAttribute("empty", tuple.getT3());
+                    return Mono.just("cart");
+                });
     }
+
 
     @PostMapping("/{itemId}")
     public String changeItemCount(

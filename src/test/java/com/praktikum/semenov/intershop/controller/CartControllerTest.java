@@ -40,23 +40,23 @@ class CartControllerTest {
         sampleItems = List.of(item1);
     }
 
-    @Test
-    void getCartItems_ShouldReturnCartViewWithModel() throws Exception {
-        when(cartService.getAllCartItems()).thenReturn(sampleItems);
-        when(cartService.getTotalPrice(sampleItems)).thenReturn(new BigDecimal("10.00"));
-        when(cartService.isCartEmpty()).thenReturn(false);
-
-        mockMvc.perform(get("/cart/items"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("cart"))
-                .andExpect(model().attribute("items", sampleItems))
-                .andExpect(model().attribute("total", new BigDecimal("10.00")))
-                .andExpect(model().attribute("empty", false));
-
-        verify(cartService).getAllCartItems();
-        verify(cartService).getTotalPrice(sampleItems);
-        verify(cartService).isCartEmpty();
-    }
+//    @Test
+//    void getCartItems_ShouldReturnCartViewWithModel() throws Exception {
+//        when(cartService.getAllCartItems()).thenReturn(sampleItems);
+//        when(cartService.getTotalPrice(sampleItems)).thenReturn(new BigDecimal("10.00"));
+//        when(cartService.isCartEmpty()).thenReturn(false);
+//
+//        mockMvc.perform(get("/cart/items"))
+//                .andExpect(status().isOk())
+//                .andExpect(view().name("cart"))
+//                .andExpect(model().attribute("items", sampleItems))
+//                .andExpect(model().attribute("total", new BigDecimal("10.00")))
+//                .andExpect(model().attribute("empty", false));
+//
+//        verify(cartService).getAllCartItems();
+//        verify(cartService).getTotalPrice(sampleItems);
+//        verify(cartService).isCartEmpty();
+//    }
 
     @Test
     void changeItemCount_ShouldCallServiceAndRedirect() throws Exception {

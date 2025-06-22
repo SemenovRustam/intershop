@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,17 +25,13 @@ public class ItemController {
     private final CartService cartService;
 
     @GetMapping("/{id}")
-    public String getItemInfo(@PathVariable Long id, Model model) {
-        Optional<Item> optionalItem = itemService.getItemById(id);
-        Item item;
-        if (optionalItem.isPresent()) {
-            item = optionalItem.get();
-        } else {
-            throw  new ResourceNotFoundException("Item by id " + id + " not found.");
-        }
-
-        model.addAttribute("item", item);
-        return "item";
+    public Mono<String> getItemInfo(@PathVariable Long id, Model model) {
+        return itemService.getItemById(id)
+                .flatMap(item -> {
+                    model.addAttribute("item", item);
+                    return Mono.just("item");
+                })
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Item by id " + id + " not found.")));
     }
 
     @PostMapping("/{id}")

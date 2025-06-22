@@ -10,6 +10,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static java.util.Objects.isNull;
 
@@ -43,23 +45,25 @@ public class CartService {
         }
     }
 
-    public List<ItemDto> getAllCartItems() {
+    public Mono<List<ItemDto>> getAllCartItems() {
         Set<Long> ids = cart.keySet();
         return itemService.findAllItemByIds(ids)
-                .stream()
                 .map(this::convertItemWithCartCount)
-                .toList();
+                .collectList();
     }
 
-    public BigDecimal getTotalPrice(List<ItemDto> cartItems) {
-        return cartItems.stream()
+    public Mono<BigDecimal> getTotalPrice(Mono<List<ItemDto>> cartItems) {
+        return cartItems
+                .flatMapMany(Flux::fromIterable)
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getCount())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void clearCart() {
-        cart.clear();
-        log.info("Clear cart");
+    public Mono<Void> clearCart() {
+        return Mono.fromRunnable(() -> {
+            cart.clear();
+            log.info("Clear cart");
+        });
     }
 
     private ItemDto convertItemWithCartCount(ItemDto item) {
@@ -67,7 +71,7 @@ public class CartService {
         return item;
     }
 
-    public boolean isCartEmpty() {
-        return cart.keySet().isEmpty();
+    public Mono<Boolean> isCartEmpty() {
+        return Mono.just(cart.keySet().isEmpty());
     }
 }

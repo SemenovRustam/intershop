@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequestMapping("/main/items")
@@ -27,7 +28,7 @@ public class MainController {
     private final CartService cartService;
 
     @GetMapping()
-    public String getItems(
+    public Mono<String> getItems(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") SortDto sort,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -37,16 +38,16 @@ public class MainController {
         // Преобразуем pageNumber в индекс страницы
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize, getSortOrder(sort));
 
-        // Получаем страницу товаров
-        Page<Item> itemsPage = itemService.getItems(search, pageRequest);
-
-        // Подготавливаем данные для отображения в шаблоне
-        model.addAttribute("items", itemsPage.getContent());
-        model.addAttribute("search", search);
-        model.addAttribute("sort", sort);
-        model.addAttribute("paging", createPagingModel(itemsPage));
-
-        return "main";
+//        // Получаем страницу товаров
+        return itemService.getItems(search, pageRequest)
+                .collectList()
+                .flatMap(items -> {
+                    model.addAttribute("items", items.getFirst().getContent());
+                    model.addAttribute("search", search);
+                    model.addAttribute("sort", sort);
+                    model.addAttribute("paging", createPagingModel(items.getFirst()));
+                    return Mono.just("main");
+                });
     }
 
     @PostMapping("{itemId}")

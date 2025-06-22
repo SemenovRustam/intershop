@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class ItemService {
     private final ItemMapper itemMapper;
 
     // Получение страницы товаров с учетом поиска
-    public Page<Item> getItems(String search, Pageable pageable) {
+    public Flux<Page<Item>> getItems(String search, Pageable pageable) {
         if (search == null || search.isEmpty()) {
             return itemRepository.findAll(pageable); // Если нет поиска, возвращаем все товары
         } else {
@@ -30,37 +32,36 @@ public class ItemService {
     }
 
     // Получение товара по ID
-    public Optional<Item> getItemById(Long id) {
+    public Mono<Item> getItemById(Long id) {
         return itemRepository.findById(id);
     }
 
     // Обновление существующего товара
-    public Item updateItem(Long id, Item itemDetails) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
+    public Mono<Item> updateItem(Long id, Item itemDetails) {
+        return itemRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Item not found with id " + id)))
+                .flatMap(item -> {
+                    item.setTitle(itemDetails.getTitle());
+                    item.setDescription(itemDetails.getDescription());
+                    item.setImgPath(itemDetails.getImgPath());
+                    item.setCount(itemDetails.getCount());
+                    item.setPrice(itemDetails.getPrice());
 
-        item.setTitle(itemDetails.getTitle());
-        item.setDescription(itemDetails.getDescription());
-        item.setImgPath(itemDetails.getImgPath());
-        item.setCount(itemDetails.getCount());
-        item.setPrice(itemDetails.getPrice());
-
-        return itemRepository.save(item);
+                    return itemRepository.save(item);
+                });
     }
 
     // Удаление товара
-    public void deleteItem(Long id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
-        itemRepository.delete(item);
+    public Mono<Void> deleteItem(Long id) {
+        return itemRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Item not found with id " + id)))
+                .flatMap(itemRepository::delete);
     }
 
-    public List<ItemDto> findAllItemByIds(Iterable<Long> ids) {
-        List<Item> allById = itemRepository.findAllById(ids);
-        return allById
-                .stream()
-                .map(itemMapper::toItemDto)
-                .toList();
+    public Flux<ItemDto> findAllItemByIds(Iterable<Long> ids) {
+        return itemRepository.findAllById(ids)
+                .map(itemMapper::toItemDto);
+
     }
 }
 

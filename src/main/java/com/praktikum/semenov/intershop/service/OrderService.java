@@ -1,14 +1,12 @@
 package com.praktikum.semenov.intershop.service;
 
-import com.praktikum.semenov.intershop.dto.ItemDto;
 import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.entity.Order;
 import com.praktikum.semenov.intershop.exception.ResourceNotFoundException;
 import com.praktikum.semenov.intershop.mapper.ItemMapper;
 import com.praktikum.semenov.intershop.repository.OrderRepository;
-
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,17 +26,27 @@ public class OrderService {
 
     @Transactional
     public Mono<Order> createOrder() {
-        List<ItemDto> allCartItems = cartService.getAllCartItems();
+        return cartService.getAllCartItems()
+                .flatMap(allCartItems -> {
 
-        List<Item> items = allCartItems
-                .stream()
-                .map(mapper::toItem)
-                .toList();
-        Order order = new Order();
-        order.setItems(items);
-        order.setTotalSum(cartService.getTotalPrice(allCartItems));
-        cartService.clearCart();
-        return orderRepository.save(order);
+                    List<Item> items = allCartItems.stream()
+                            .map(mapper::toItem)
+                            .toList();
+
+                    // Получаем Mono<BigDecimal>
+                    Mono<BigDecimal> totalPriceMono = cartService.getTotalPrice(Mono.just(allCartItems));
+
+                    return totalPriceMono.flatMap(totalPrice -> {
+                        Order order = new Order();
+                        order.setItems(items);
+                        order.setTotalSum(totalPrice);
+
+                        // Очистка корзины, предполагается Mono<Void>
+                        return cartService.clearCart()
+                                .then(orderRepository.save(order));
+                    });
+                });
+
     }
 
     @Transactional(readOnly = true)
