@@ -11,7 +11,7 @@ public interface ItemRepository extends R2dbcRepository<Item, Long> {
 
     Flux<Page<Item>> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 
-    Flux<Page<Item>> findAll(Pageable pageable);
+    Flux<Page<Item>> findAllBy(Pageable pageable);
 
     Mono<Long> countByTitleContainingIgnoreCase(String title);
 

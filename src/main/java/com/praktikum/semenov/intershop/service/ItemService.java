@@ -5,9 +5,6 @@ import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.exception.ResourceNotFoundException;
 import com.praktikum.semenov.intershop.mapper.ItemMapper;
 import com.praktikum.semenov.intershop.repository.ItemRepository;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +22,7 @@ public class ItemService {
     // Получение страницы товаров с учетом поиска
     public Flux<Page<Item>> getItems(String search, Pageable pageable) {
         if (search == null || search.isEmpty()) {
-            return itemRepository.findAll(pageable); // Если нет поиска, возвращаем все товары
+            return itemRepository.findAllBy(pageable); // Если нет поиска, возвращаем все товары
         } else {
             return itemRepository.findByTitleContainingIgnoreCase(search, pageable); // Поиск по названию
         }
