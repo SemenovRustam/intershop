@@ -44,7 +44,7 @@ public class CartController {
         CartAction cartAction = CartAction.valueOf(action.toUpperCase());
 
         return cartService.changeItemCount(itemId, cartAction)
-                .then(Mono.just("redirect:/main/items/"));
+                .then(Mono.just("redirect:/main/items"));
     }
 }
 

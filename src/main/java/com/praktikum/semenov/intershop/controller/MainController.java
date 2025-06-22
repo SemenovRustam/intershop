@@ -1,9 +1,9 @@
 package com.praktikum.semenov.intershop.controller;
 
+import com.praktikum.semenov.intershop.dto.CartAction;
 import com.praktikum.semenov.intershop.dto.PagingModel;
 import com.praktikum.semenov.intershop.dto.SortDto;
 import com.praktikum.semenov.intershop.entity.Item;
-import com.praktikum.semenov.intershop.dto.CartAction;
 import com.praktikum.semenov.intershop.service.CartService;
 import com.praktikum.semenov.intershop.service.ItemService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -27,7 +28,7 @@ public class MainController {
     private final ItemService itemService;
     private final CartService cartService;
 
-    @GetMapping()
+    @GetMapping("/")
     public Mono<String> getItems(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") SortDto sort,
@@ -50,11 +51,17 @@ public class MainController {
     }
 
     @PostMapping("{itemId}")
-    public Mono<String> changeItemCount(@PathVariable Long itemId, @RequestParam String action) {
-        CartAction cartAction = CartAction.valueOf(action.toUpperCase());
-
-        return cartService.changeItemCount(itemId, cartAction)
-                .then(Mono.just("redirect:/main/items/"));
+    public Mono<String> changeItemCount(@PathVariable Long itemId, ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .flatMap(formData -> {
+                    String action = formData.getFirst("action");
+                    if (action == null) {
+                        return Mono.error(new IllegalArgumentException("Missing action parameter"));
+                    }
+                    CartAction cartAction = CartAction.valueOf(action.toUpperCase());
+                    return cartService.changeItemCount(itemId, cartAction)
+                            .thenReturn("redirect:/main/items/");
+                });
     }
 
     private Sort getSortOrder(SortDto sort) {
