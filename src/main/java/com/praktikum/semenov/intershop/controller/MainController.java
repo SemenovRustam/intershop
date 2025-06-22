@@ -40,13 +40,12 @@ public class MainController {
 
 //        // Получаем страницу товаров
         return itemService.getItems(search, pageRequest)
-                .collectList()
-                .flatMap(items -> {
-                    model.addAttribute("items", items.getFirst().getContent());
+                .map(items -> {
+                    model.addAttribute("items", items.getContent());
                     model.addAttribute("search", search);
                     model.addAttribute("sort", sort);
-                    model.addAttribute("paging", createPagingModel(items.getFirst()));
-                    return Mono.just("main");
+                    model.addAttribute("paging", createPagingModel(items));
+                    return "main";
                 });
     }
 

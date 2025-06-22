@@ -5,8 +5,10 @@ import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.exception.ResourceNotFoundException;
 import com.praktikum.semenov.intershop.mapper.ItemMapper;
 import com.praktikum.semenov.intershop.repository.ItemRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -20,12 +22,26 @@ public class ItemService {
     private final ItemMapper itemMapper;
 
     // Получение страницы товаров с учетом поиска
-    public Flux<Page<Item>> getItems(String search, Pageable pageable) {
-        if (search == null || search.isEmpty()) {
-            return itemRepository.findAllBy(pageable); // Если нет поиска, возвращаем все товары
-        } else {
-            return itemRepository.findByTitleContainingIgnoreCase(search, pageable); // Поиск по названию
-        }
+    public Mono<Page<Item>> getItems(String search, Pageable pageable) {
+//        if (search == null || search.isEmpty()) {
+//            return itemRepository.findAllBy(pageable); // Если нет поиска, возвращаем все товары
+//        } else {
+//            return itemRepository.findByTitleContainingIgnoreCase(search, pageable); // Поиск по названию
+//        }
+
+        Flux<Item> itemFlux = (search == null || search.isEmpty()) ? itemRepository.findAllBy(pageable) :
+                itemRepository.findByTitleContainingIgnoreCase(search, pageable);
+
+        Mono<Long> totalMono = (search == null || search.isEmpty())
+                ? itemRepository.count()
+                : itemRepository.countByTitleContainingIgnoreCase(search);
+
+        return Mono.zip(itemFlux.collectList(), totalMono)
+                .map(tuple -> {
+                    List<Item> items = tuple.getT1();
+                    Long total = tuple.getT2();
+                    return new PageImpl(items, pageable, total) {};
+                });
     }
 
     // Получение товара по ID
