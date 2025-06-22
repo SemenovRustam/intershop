@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public Order createOrder() {
+    public Mono<Order> createOrder() {
         List<ItemDto> allCartItems = cartService.getAllCartItems();
 
         List<Item> items = allCartItems
@@ -40,17 +42,14 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<Order> getAllOrders() {
+    public Flux<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    public Order findById(Long id) {
-        Optional<Order> optionalOrder = orderRepository.findById(id);
-
-        if (optionalOrder.isEmpty()) {
-            throw new ResourceNotFoundException("Order by id " + id + " not found");
-        }
-
-        return optionalOrder.get();
+    public Mono<Order> findById(Long id) {
+        return orderRepository.findById(id)
+                .switchIfEmpty(
+                        Mono.error(new ResourceNotFoundException("Order by id " + id + " not found"))
+                );
     }
 }
