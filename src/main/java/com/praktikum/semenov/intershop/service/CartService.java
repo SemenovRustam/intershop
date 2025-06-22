@@ -23,7 +23,7 @@ public class CartService {
     private final ItemService itemService;
     private final Map<Long, Integer> cart = new HashMap<>();
 
-    public void changeItemCount(Long itemId, CartAction action) {
+    public Mono<Void> changeItemCount(Long itemId, CartAction action) {
 //        int count = cart.getOrDefault(itemId, 0);
 //        switch (action) {
 //            case PLUS -> cart.put(itemId, count + 1);
@@ -37,12 +37,14 @@ public class CartService {
 //            case REMOVE -> cart.remove(itemId);
 //        }
 
-        switch (action) {
-            case PLUS -> cart.compute(itemId, (k, v) -> isNull(v) ? 1 : v + 1);
-            case MINUS -> cart.compute(itemId, (k, v) -> (isNull(v) || v == 0) ? 0 : v - 1);
-            case DELETE -> cart.remove(itemId);
-            default ->  log.info("not found action");
-        }
+        return Mono.fromRunnable(() -> {
+            switch (action) {
+                case PLUS -> cart.compute(itemId, (k, v) -> isNull(v) ? 1 : v + 1);
+                case MINUS -> cart.compute(itemId, (k, v) -> (isNull(v) || v == 0) ? 0 : v - 1);
+                case DELETE -> cart.remove(itemId);
+                default ->  log.info("not found action");
+            }
+        });
     }
 
     public Mono<List<ItemDto>> getAllCartItems() {
