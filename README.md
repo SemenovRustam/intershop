@@ -23,13 +23,9 @@ PostgreSQL (или запуск через Docker)
 
  Если хотите запустить PostgreSQL через Docker, используйте команду:
 
-docker run -d \
---name intershop-postgres \
--e POSTGRES_DB=intershop \
--e POSTGRES_USER=postgres \
--e POSTGRES_PASSWORD= \
--p 5432:5432 \
-postgres:15
+docker-compose up --build
+#### Важно! При запуске через докер в url для постгрес в application.yml необходимо заменить localhost на postgres
+
 
 База доступна по адресу: localhost:5432
 Имя базы: intershop

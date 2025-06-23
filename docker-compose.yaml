@@ -4,20 +4,32 @@ services:
     ports:
       - '8080:8080'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/intershop
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: ''
+      SPRING_R2DBC_URL: r2dbc:postgresql://localhost:5432/intershop
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: ''
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://localhost:5432/intershop
+      SPRING_LIQUIBASE_USER: postgres
+      SPRING_LIQUIBASE_PASSWORD: ''
 
   postgres:
-    image: 'postgres:latest'
+    image: postgres:latest
     environment:
       POSTGRES_DB: intershop
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ''
       POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - '5732:5432'
+      - '5432:5432'
     volumes:
-      - /var/lib/postgresql/data/
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
