@@ -20,11 +20,16 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/buy")
-    public Mono<ServerResponse> createOrder() {
+    public Mono<String> createOrder() {
+//        return orderService.createOrder()
+//                .flatMap(order -> {
+//                            String redirectUrl = String.format("/orders/%d?newOrder=true", order.getId());
+//                            return ServerResponse.seeOther(URI.create(redirectUrl)).build();
+//                        }
+//                );
         return orderService.createOrder()
-                .flatMap(order ->
-                        ServerResponse.seeOther(URI.create("/orders/${order.id}?newOrder=true")).build()
-                );
+                .map(order -> "redirect:/orders/" + order.getId() + "?newOrder=true");
+
     }
 
     @GetMapping("/orders")

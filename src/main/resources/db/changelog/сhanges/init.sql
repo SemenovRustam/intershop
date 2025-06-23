@@ -7,15 +7,13 @@ CREATE TABLE items(
                       price DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE orders
-(
+CREATE TABLE orders(
     id BIGSERIAL NOT NULL,
     total_sum BIGINT NOT NULL,
     CONSTRAINT orders_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE orders_items
-(
+CREATE TABLE orders_items(
     order_id BIGINT NOT NULL,
     item_id  BIGINT NOT NULL,
     CONSTRAINT orders_items_pk PRIMARY KEY (order_id, item_id),

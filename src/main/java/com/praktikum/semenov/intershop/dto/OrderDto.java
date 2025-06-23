@@ -1,6 +1,5 @@
 package com.praktikum.semenov.intershop.dto;
 
-import com.praktikum.semenov.intershop.entity.Item;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,5 +17,9 @@ public class OrderDto {
 
     public List<ItemDto> items() {
         return items;
+    }
+
+    public BigDecimal totalSum() {
+        return totalSum;
     }
 }

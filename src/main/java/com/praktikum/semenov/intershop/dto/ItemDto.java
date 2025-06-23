@@ -16,4 +16,8 @@ public class ItemDto {
     private String imgPath;
     private Integer count;
     private BigDecimal price;
+
+    public Integer getCount() {
+        return count == null ? 1 : count;
+    }
 }

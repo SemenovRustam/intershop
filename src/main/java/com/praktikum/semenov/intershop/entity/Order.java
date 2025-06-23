@@ -22,7 +22,5 @@ public class Order {
     @Column("total_sum")
     private BigDecimal totalSum;
 
-    public BigDecimal totalSum() {
-        return totalSum;
-    }
+
 }

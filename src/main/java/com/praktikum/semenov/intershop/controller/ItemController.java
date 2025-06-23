@@ -36,7 +36,7 @@ public class ItemController {
 
     @PostMapping("/{id}")
     public Mono<String> changeItemCount(@PathVariable Long id, @RequestParam String action) {
-        return cartService.changeItemCount(id, CartAction.valueOf(action.toUpperCase()))
+        return cartService.changeItemCount(id, action)
                 .then(Mono.just("redirect:/items/{id}"));
     }
 }

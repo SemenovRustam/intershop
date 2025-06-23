@@ -31,7 +31,6 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
 
-    @Transactional
     public Mono<Order> createOrder() {
         return cartService.getAllCartItems()
                 .flatMap(allCartItems -> {
@@ -67,7 +66,7 @@ public class OrderService {
                 });
     }
 
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public Flux<OrderDto> getAllOrders() {
         return orderRepository.findAll()
                 .flatMap(order -> orderItemRepository.findItemsByOrderId(order.getId())

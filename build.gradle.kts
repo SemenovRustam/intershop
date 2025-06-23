@@ -32,6 +32,7 @@ dependencies {
 	implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.liquibase:liquibase-core")
+	runtimeOnly("org.postgresql:postgresql") // JDBC-драйвер
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 	compileOnly("org.projectlombok:lombok")

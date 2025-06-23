@@ -58,8 +58,8 @@ public class MainController {
                     if (action == null) {
                         return Mono.error(new IllegalArgumentException("Missing action parameter"));
                     }
-                    CartAction cartAction = CartAction.valueOf(action.toUpperCase());
-                    return cartService.changeItemCount(itemId, cartAction)
+
+                    return cartService.changeItemCount(itemId, action)
                             .thenReturn("redirect:/main/items/");
                 });
     }

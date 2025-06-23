@@ -5,8 +5,9 @@ import com.praktikum.semenov.intershop.entity.OrderItem;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
+import reactor.util.function.Tuple2;
 
-public interface OrderItemRepository extends R2dbcRepository<OrderItem, Long> {
+public interface OrderItemRepository extends R2dbcRepository<OrderItem, Tuple2<Long, Long>> {
 
     @Query("""
             SELECT i.id, i.title, i.price

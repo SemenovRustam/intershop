@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static com.praktikum.semenov.intershop.dto.CartAction.*;
 import static java.util.Objects.isNull;
 
 @Service
@@ -23,7 +24,7 @@ public class CartService {
     private final ItemService itemService;
     private final Map<Long, Integer> cart = new HashMap<>();
 
-    public Mono<Void> changeItemCount(Long itemId, CartAction action) {
+    public Mono<Void> changeItemCount(Long itemId, String action) {
 //        int count = cart.getOrDefault(itemId, 0);
 //        switch (action) {
 //            case PLUS -> cart.put(itemId, count + 1);
@@ -37,8 +38,10 @@ public class CartService {
 //            case REMOVE -> cart.remove(itemId);
 //        }
 
+        CartAction cartAction = CartAction.valueOf(action.toUpperCase());
+
         return Mono.fromRunnable(() -> {
-            switch (action) {
+            switch (cartAction) {
                 case PLUS -> cart.compute(itemId, (k, v) -> isNull(v) ? 1 : v + 1);
                 case MINUS -> cart.compute(itemId, (k, v) -> (isNull(v) || v == 0) ? 0 : v - 1);
                 case DELETE -> cart.remove(itemId);

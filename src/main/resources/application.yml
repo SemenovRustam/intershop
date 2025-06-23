@@ -15,7 +15,7 @@ spring:
 #    username: postgres
 #    password:
   liquibase:
-#    url: jdbc:postgresql://localhost:5432/intershop
+    url: jdbc:postgresql://localhost:5432/intershop
     change-log: classpath:db/changelog/changelog.yml
   jpa:
     hibernate:
