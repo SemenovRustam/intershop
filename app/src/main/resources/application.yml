@@ -1,8 +1,17 @@
 spring:
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/intershop
+#    url: r2dbc:postgresql://localhost:5432/intershop
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/intershop}
     username: postgres
     password:
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
   application:
     name: intershop
   thymeleaf:
@@ -11,7 +20,8 @@ spring:
     suffix: .html
     cache: false
   liquibase:
-    url: jdbc:postgresql://localhost:5432/intershop  # Важно: postgres вместо localhost
+#    url: jdbc:postgresql://localhost:5432/intershop  # Важно: postgres вместо localhost
+    url: ${SPRING_LIQUIBASE_URL:jdbc:postgresql://localhost:5432/intershop}
     user: postgres
     password: ''
     change-log: classpath:db/changelog/changelog.yml
