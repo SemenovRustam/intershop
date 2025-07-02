@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/v1/pay")
 @RequiredArgsConstructor
-public class PayController {
+public class PayController  {
 
     private final PayService payService;
 

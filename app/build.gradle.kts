@@ -67,20 +67,20 @@ springBoot {
 }
 
 
-openApiGenerate {
-    generatorName.set("spring")
-    inputSpec.set(layout.projectDirectory.file("src/main/resources/api/openapi.yml").asFile.absolutePath)
-    outputDir.set(layout.buildDirectory.dir("generated").get().asFile.absolutePath)
-    apiPackage.set("com.praktikum.semenov.generated.api")
-    modelPackage.set("com.praktikum.semenov.generated.model")
-    configOptions.set(mapOf(
-        "interfaceOnly" to "true",
-        "useSpringBoot3" to "true",
-        "reactive" to "true",
-        "java8" to "true",
-        "skipValidateSpec" to "true"
-    ))
-}
+//openApiGenerate {
+//    generatorName.set("spring")
+//    inputSpec = "${rootProject.projectDir}/pay/src/main/resources/api/pay-api.yaml"
+//    outputDir = "${buildDir}/generated"
+//    apiPackage.set("com.praktikum.semenov.generated.api")
+//    modelPackage.set("com.praktikum.semenov.generated.model")
+//    configOptions.set(mapOf(
+//        "interfaceOnly" to "true",
+//        "useSpringBoot3" to "true",
+//        "reactive" to "true",
+//        "java8" to "true",
+//        "skipValidateSpec" to "true"
+//    ))
+//}
 
 sourceSets {
     main {

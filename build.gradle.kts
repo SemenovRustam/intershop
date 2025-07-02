@@ -6,6 +6,7 @@ plugins {
 
 allprojects {
 	apply(plugin = "java")
+	apply(plugin = "org.openapi.generator")
 
 	group = "com.praktikum.semenov"
 	version = "0.0.1-SNAPSHOT"
