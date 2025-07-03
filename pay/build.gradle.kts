@@ -62,7 +62,6 @@ openApiGenerate {
 		"reactive" to "true",
 		"useTags" to "true"        // <--- эта опция
 	)
-	verbose.set(true)
 }
 
 
