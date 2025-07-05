@@ -1,19 +1,12 @@
 package com.praktikum.semenov.intershop.controller;
 
-import com.praktikum.semenov.intershop.dto.CartAction;
-import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.exception.ResourceNotFoundException;
 import com.praktikum.semenov.intershop.service.CartService;
 import com.praktikum.semenov.intershop.service.ItemService;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @Controller

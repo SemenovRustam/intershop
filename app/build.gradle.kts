@@ -26,11 +26,18 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2022.0.3")
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework:spring-webflux")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+
 //    implementation("io.lettuce:lettuce-core:6.2.4.RELEASE")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
@@ -49,6 +56,13 @@ dependencies {
     //doc
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.2.0")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    compileOnly("jakarta.validation:jakarta.validation-api:3.0.2")
+
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.projectreactor:reactor-test")
@@ -67,25 +81,30 @@ springBoot {
 }
 
 
-//openApiGenerate {
-//    generatorName.set("spring")
-//    inputSpec = "${rootProject.projectDir}/pay/src/main/resources/api/pay-api.yaml"
-//    outputDir = "${buildDir}/generated"
-//    apiPackage.set("com.praktikum.semenov.generated.api")
-//    modelPackage.set("com.praktikum.semenov.generated.model")
-//    configOptions.set(mapOf(
-//        "interfaceOnly" to "true",
-//        "useSpringBoot3" to "true",
-//        "reactive" to "true",
-//        "java8" to "true",
-//        "skipValidateSpec" to "true"
-//    ))
-//}
+openApiGenerate {
+    generatorName.set("java")
+    inputSpec.set("$projectDir/src/main/resources/api/pay-api.yaml")
+    outputDir.set("$buildDir/generated-sources/openapi/pay-client")
+    library.set("webclient") // реактивный Spring WebClient
+    apiPackage.set("com.semenov.pay.client.api")
+    modelPackage.set("com.semenov.pay.client.model")
+    invokerPackage.set("com.semenov.pay.client.invoker")
+    configOptions.set(
+        mapOf(
+//            "library" to "spring-cloud",
+            "dateLibrary" to "java8",
+            "useTags" to "true",
+            "useJakartaEe" to "true"
+        )
+    )
+    generateApiTests.set(false)
+    generateModelTests.set(false)
+}
 
 sourceSets {
     main {
         java {
-            srcDir("${layout.buildDirectory}/generated/src/main/java")
+            srcDir("$buildDir/generated-sources/openapi/pay-client/src/main/java")
         }
     }
 }

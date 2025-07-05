@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class PayService {
 
-    private BigDecimal BALANCE = BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(1000, 10_000))
+    private BigDecimal BALANCE = BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(3000, 10_000))
             .setScale(2, RoundingMode.HALF_EVEN);
 
     public Mono<BigDecimal> getBalance() {
@@ -22,12 +22,12 @@ public class PayService {
     public Mono<Boolean> pay(BigDecimal amount) {
         int result = amount.compareTo(BALANCE);
 
-        if (result < 0) {
+        if (result > 0) {
             log.error("Amount a more then balance!");
             return Mono.just(false);
         }
 
-        BALANCE.subtract(amount);
+        BALANCE = BALANCE.subtract(amount);
         log.info("Current balance = {}", BALANCE);
         return Mono.just(true);
     }

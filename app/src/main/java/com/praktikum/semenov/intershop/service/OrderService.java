@@ -1,6 +1,5 @@
 package com.praktikum.semenov.intershop.service;
 
-import com.praktikum.semenov.intershop.dto.ItemDto;
 import com.praktikum.semenov.intershop.dto.OrderDto;
 import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.entity.Order;
@@ -10,14 +9,14 @@ import com.praktikum.semenov.intershop.mapper.ItemMapper;
 import com.praktikum.semenov.intershop.repository.ItemRepository;
 import com.praktikum.semenov.intershop.repository.OrderItemRepository;
 import com.praktikum.semenov.intershop.repository.OrderRepository;
-import java.math.BigDecimal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
+    private final PayService payService;
 
     public Mono<Order> createOrder() {
         return cartService.getAllCartItems()
@@ -38,7 +38,17 @@ public class OrderService {
                             .map(mapper::toItem)
                             .toList();
 
-                    Mono<BigDecimal> totalPriceMono = cartService.getTotalPrice(Mono.just(allCartItems));
+                    Mono<BigDecimal> totalPriceMono = cartService.getTotalPrice(Mono.just(allCartItems))
+                            .flatMap(price ->
+                                    payService.pay(price).flatMap(paid -> {
+                                                if (paid) {
+                                                    return Mono.just(price);
+                                                } else {
+                                                    return Mono.error(new RuntimeException("Paymant failed! Check your balance!"));
+                                                }
+                                            }
+                                    )
+                            );
 
                     return totalPriceMono.flatMap(totalPrice -> {
                         Order order = new Order();

@@ -1,7 +1,6 @@
 package com.praktikum.semenov.intershop.controller;
 
 import com.praktikum.semenov.intershop.service.OrderService;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 
@@ -21,6 +19,8 @@ public class OrderController {
 
     @PostMapping("/buy")
     public Mono<String> createOrder() {
+
+
         return orderService.createOrder()
                 .map(order -> "redirect:/orders/" + order.getId() + "?newOrder=true");
     }

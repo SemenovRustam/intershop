@@ -7,7 +7,9 @@ import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.service.CartService;
 import com.praktikum.semenov.intershop.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -39,9 +41,12 @@ public class MainController {
         // Преобразуем pageNumber в индекс страницы
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize, getSortOrder(sort));
 
+
 //        // Получаем страницу товаров
         return itemService.getItems(search, pageRequest)
-                .map(items -> {
+                .map(dto -> {
+//                    PageRequest page = PageRequest.of(dto.getPageNumber(), dto.getPageSize(), Sort.by(dto.getSort()));
+                    PageImpl<Item> items = new PageImpl<>(dto.getItems(), pageRequest, dto.getTotal());
                     model.addAttribute("items", items.getContent());
                     model.addAttribute("search", search);
                     model.addAttribute("sort", sort);

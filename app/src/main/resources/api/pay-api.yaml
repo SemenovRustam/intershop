@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Payment API
+  version: 1.0.0
+paths:
+  /api/v1/pay/balance:
+    get:
+      tags:
+        - payment
+      summary: Получить баланс
+      operationId: getBalance
+      responses:
+        '200':
+          description: Баланс пользователя
+          content:
+            application/json:
+              schema:
+                type: string
+                format: decimal
+  /api/v1/pay:
+    post:
+      tags:
+        - payment
+      summary: Совершить платёж
+      operationId: pay
+      parameters:
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: string
+            format: decimal
+      responses:
+        '200':
+          description: Результат платежа
+          content:
+            application/json:
+              schema:
+                type: boolean
+components: {}
