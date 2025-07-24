@@ -1,0 +1,44 @@
+spring:
+  data:
+    redis:
+      host: redis
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 1
+  cache:
+    ttl:
+      default: 60    # время в секундах, 10 минут
+      itemsCache: 300 # время в секундах, 5 минут
+  r2dbc:
+#    url: r2dbc:postgresql://localhost:5432/intershop
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/intershop}
+    username: postgres
+    password:
+  application:
+    name: intershop
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  liquibase:
+#    url: jdbc:postgresql://localhost:5432/intershop  # Важно: postgres вместо localhost
+    url: ${SPRING_LIQUIBASE_URL:jdbc:postgresql://localhost:5432/intershop}
+    user: postgres
+    password: ''
+    change-log: classpath:db/changelog/changelog.yml
+    enabled: true
+logging:
+  level:
+    org:
+      thymeleaf: DEBUG
+      springframework:
+        web: DEBUG
+
+pay:
+  service:
+    base-url=${PAY_SERVICE_BASE_URL:http://localhost:8081/api/v1/pay}:
+

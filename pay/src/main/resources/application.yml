@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: pay
+
+server:
+  port: 8081

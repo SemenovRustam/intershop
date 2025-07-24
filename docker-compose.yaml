@@ -1,23 +1,63 @@
 services:
   app:
-    build: .
+    container_name: app
+    build: app
     ports:
       - '8080:8080'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pay:
+        condition: service_started
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/intershop
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: ''
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/intershop
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: ''
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://postgres:5432/intershop
+      SPRING_LIQUIBASE_USER: postgres
+      SPRING_LIQUIBASE_PASSWORD: ''
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      PAY_SERVICE_BASE_URL: http://pay:8081/api/v1/pay
+
+  pay:
+    container_name: pay
+    build: pay
+    ports:
+      - '8081:8081'
 
   postgres:
-    image: 'postgres:latest'
+    image: postgres:latest
     environment:
       POSTGRES_DB: intershop
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ''
       POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - '5732:5432'
+      - '5432:5432'
     volumes:
-      - /var/lib/postgresql/data/
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.0-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
