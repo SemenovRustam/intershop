@@ -2,6 +2,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     java
+    idea
     id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.openapi.generator") version "7.12.0"
@@ -38,7 +39,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 
-//    implementation("io.lettuce:lettuce-core:6.2.4.RELEASE")
+    //security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-crypto")
+
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -115,4 +119,11 @@ tasks.compileJava {
 
 tasks.jar {
     enabled = false
+}
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
+    }
 }

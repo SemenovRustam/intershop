@@ -69,7 +69,7 @@ public class OrderService {
 
                                     // Сохраняем все связи, ждём их завершения
                                     return Flux.concat(orderItemsSaves)
-                                            .then(cartService.clearCart())  // очищаем корзину после сохранения связей
+                                            .then(cartService.clearUserCart())  // очищаем корзину после сохранения связей
                                             .thenReturn(savedOrder);        // возвращаем сохранённый заказ
                                 });
                     });
