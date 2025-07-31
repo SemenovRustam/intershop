@@ -22,5 +22,6 @@ public class Order {
     @Column("total_sum")
     private BigDecimal totalSum;
 
-
+    @Column
+    private Long userId;
 }

@@ -3,3 +3,5 @@ databaseChangeLog:
       file: classpath:db/changelog/сhanges/init.sql
   - include:
       file: classpath:db/changelog/сhanges/user.sql
+  - include:
+      file: classpath:db/changelog/сhanges/add-user-id.sql
