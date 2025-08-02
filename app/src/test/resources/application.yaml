@@ -1,3 +1,11 @@
 pay:
   service:
     base-url: http://localhost:8081/api/v1/pay
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/intershop

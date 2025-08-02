@@ -5,7 +5,7 @@ services:
     container_name: app
     build: app
     ports:
-      - '8080:8080'
+      - '8085:8080'
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,6 +25,7 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       PAY_SERVICE_BASE_URL: http://pay:8081/api/v1/pay
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/master
 
   pay:
     container_name: pay
@@ -74,12 +75,17 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_IMPORT: "true"
+      KC_IMPORT_REALM: /opt/keycloak/realm-export.json
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     command:
       - start-dev
+      - --import-realm
     ports:
-      - '8082:8080'  # Чтобы не конфликтовать с app на 8080
+      - '8082:8080'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 5

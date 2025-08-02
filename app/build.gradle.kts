@@ -42,6 +42,7 @@ dependencies {
     //security
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-crypto")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")

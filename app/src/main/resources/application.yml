@@ -31,6 +31,20 @@ spring:
     password: ''
     change-log: classpath:db/changelog/changelog.yml
     enabled: true
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/intershop
+        registration:
+          keycloak-pay-client: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: app-client
+            client-secret: 35CSkUxUoFYlIGOesQvdsyfynFoV230Q
+            scope: profile
+            clientAuthenticationMethod: client_secret_post # Способ передачи секрета
 logging:
   level:
     org:

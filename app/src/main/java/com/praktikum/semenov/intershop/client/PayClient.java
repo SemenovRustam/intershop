@@ -1,7 +1,7 @@
 package com.praktikum.semenov.intershop.client;
 
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -14,11 +14,9 @@ public class PayClient {
 
     private final WebClient webClient;
 
-    public PayClient(WebClient.Builder webClientBuilder,
-                     @Value("${pay.service.base-url}") String baseUrl) {
-        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
+    public PayClient(@Qualifier("payWebClient") WebClient webClient) {
+        this.webClient = webClient;
     }
-
 
     public Mono<BigDecimal> getBalance() {
         return webClient.get()
