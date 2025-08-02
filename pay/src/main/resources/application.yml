@@ -1,10 +1,11 @@
 spring:
   application:
     name: pay
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/intershop
 #          issuer-uri: http://localhost:8082/realms/intershop
 
 server:

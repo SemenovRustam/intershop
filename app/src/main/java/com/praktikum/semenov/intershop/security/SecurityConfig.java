@@ -74,19 +74,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebClient payWebClient(ReactiveOAuth2AuthorizedClientManager authorizedClientManager,
-                                  @Value("${pay.service.base-url}") String baseUrl) {
-
+    public WebClient payWebClient(
+            ReactiveOAuth2AuthorizedClientManager authorizedClientManager,
+            @Value("${pay.service.base-url}") String baseUrl
+    ) {
         ServerOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
                 new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 
         // Укажите clientRegistrationId вашего OAuth2 клиента из application.yml
-        oauth2Client.setDefaultClientRegistrationId("pay");
+        oauth2Client.setDefaultClientRegistrationId("app-client");
 
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .filter(oauth2Client)
                 .build();
     }
-
 }

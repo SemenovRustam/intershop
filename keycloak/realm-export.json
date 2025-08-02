@@ -639,7 +639,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "kojlmI2Ph8NJMfvJL3kglqGCAgMl4dPF",
       "redirectUris": [
         "http://localhost:8085/*"
       ],

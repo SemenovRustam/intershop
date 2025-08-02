@@ -36,13 +36,14 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://localhost:8082/realms/intershop
+            issuer-uri: http://keycloak:8080/realms/intershop
+#            issuer-uri: http://localhost:8082/realms/intershop
         registration:
-          keycloak-pay-client: # Описание клиента OAuth2
+          app-client: # Описание клиента OAuth2
             provider: keycloak
             authorizationGrantType: client_credentials
             client-id: app-client
-            client-secret: 35CSkUxUoFYlIGOesQvdsyfynFoV230Q
+            client-secret: kojlmI2Ph8NJMfvJL3kglqGCAgMl4dPF
             scope: profile
             clientAuthenticationMethod: client_secret_post # Способ передачи секрета
 logging:

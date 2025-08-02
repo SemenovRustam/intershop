@@ -25,7 +25,7 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       PAY_SERVICE_BASE_URL: http://pay:8081/api/v1/pay
-      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/master
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/intershop
 
   pay:
     container_name: pay
@@ -35,6 +35,8 @@ services:
     depends_on:
       keycloak:
         condition: service_started
+    environment:
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/intershop
 
   postgres:
     image: postgres:latest
