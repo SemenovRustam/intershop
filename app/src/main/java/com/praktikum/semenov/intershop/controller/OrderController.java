@@ -19,15 +19,13 @@ public class OrderController {
 
     @PostMapping("/buy")
     public Mono<String> createOrder() {
-
-
         return orderService.createOrder()
                 .map(order -> "redirect:/orders/" + order.getId() + "?newOrder=true");
     }
 
     @GetMapping("/orders")
     public Mono<String> getOrders(Model model) {
-        return orderService.getAllOrders()
+        return orderService.getAllOrdersByUser()
                 .collectList()
                 .flatMap(orders -> {
                             model.addAttribute("orders", orders);

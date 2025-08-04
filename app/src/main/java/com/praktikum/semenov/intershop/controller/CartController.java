@@ -25,7 +25,7 @@ public class CartController {
     public Mono<String> getCartItems(Model model) {
         Mono<List<ItemDto>> cartItems = cartService.getAllCartItems();
         Mono<BigDecimal> totalPrice = cartService.getTotalPrice(cartItems);
-        Mono<Boolean> cartEmpty = cartService.isCartEmpty();
+        Mono<Boolean> cartEmpty = cartService.cartIsEmpty();
         Mono<BigDecimal> balance = payService.checkBalance();
 
         return Mono.zip(cartItems, totalPrice, cartEmpty, balance)

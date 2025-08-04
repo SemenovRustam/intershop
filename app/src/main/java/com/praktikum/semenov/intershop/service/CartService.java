@@ -2,18 +2,19 @@ package com.praktikum.semenov.intershop.service;
 
 import com.praktikum.semenov.intershop.dto.CartAction;
 import com.praktikum.semenov.intershop.dto.ItemDto;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.praktikum.semenov.intershop.dto.CartAction.*;
 import static java.util.Objects.isNull;
 
 @Service
@@ -22,39 +23,36 @@ import static java.util.Objects.isNull;
 public class CartService {
 
     private final ItemService itemService;
-    private final Map<Long, Integer> cart = new HashMap<>();
+    private final SecurityService securityService;
+    private final Map<Long, Map<Long, Integer>> cart = new HashMap<>();
 
     public Mono<Void> changeItemCount(Long itemId, String action) {
-//        int count = cart.getOrDefault(itemId, 0);
-//        switch (action) {
-//            case PLUS -> cart.put(itemId, count + 1);
-//            case MINUS -> {
-//                if (count <= 1) {
-//                    cart.remove(itemId);
-//                } else {
-//                    cart.put(itemId, count - 1);
-//                }
-//            }
-//            case REMOVE -> cart.remove(itemId);
-//        }
-
         CartAction cartAction = CartAction.valueOf(action.toUpperCase());
 
-        return Mono.fromRunnable(() -> {
-            switch (cartAction) {
-                case PLUS -> cart.compute(itemId, (k, v) -> isNull(v) ? 1 : v + 1);
-                case MINUS -> cart.compute(itemId, (k, v) -> (isNull(v) || v == 0) ? 0 : v - 1);
-                case DELETE -> cart.remove(itemId);
-                default ->  log.info("not found action");
-            }
-        });
+        return securityService.getCurrentUserId().flatMap(
+                userId -> {
+                    Map<Long, Integer> userCart = cart.computeIfAbsent(userId, k -> new HashMap<>());
+
+                    switch (cartAction) {
+                        case PLUS -> userCart.compute(itemId, (k, v) -> isNull(v) ? 1 : v + 1);
+                        case MINUS -> userCart.compute(itemId, (k, v) -> (isNull(v) || v == 0) ? 0 : v - 1);
+                        case DELETE -> userCart.remove(itemId);
+                        default -> log.info("not found action");
+                    }
+                    return Mono.empty();
+                });
     }
 
     public Mono<List<ItemDto>> getAllCartItems() {
-        Set<Long> ids = cart.keySet();
-        return itemService.findAllItemByIds(ids)
-                .map(this::convertItemWithCartCount)
-                .collectList();
+        return securityService.getCurrentUserId()
+                .flatMap(userId -> {
+                            var userCart = cart.get(userId);
+                            Set<Long> ids = userCart.keySet();
+                            return itemService.findAllItemByIds(ids)
+                                    .map(itemDto -> convertItemWithCartCount(itemDto, userCart))
+                                    .collectList();
+                        }
+                );
     }
 
     public Mono<BigDecimal> getTotalPrice(Mono<List<ItemDto>> cartItems) {
@@ -64,19 +62,25 @@ public class CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public Mono<Void> clearCart() {
-        return Mono.fromRunnable(() -> {
-            cart.clear();
-            log.info("Clear cart");
-        });
+    public Mono<Void> clearUserCart() {
+        return securityService.getCurrentUserId()
+                .doOnNext(userId -> {
+                            cart.remove(userId);
+                            log.info("Clear cart for user {}", userId);
+                        }
+                ).then();
     }
 
-    private ItemDto convertItemWithCartCount(ItemDto item) {
-        item.setCount(cart.computeIfAbsent(item.getId(), k -> 0));
+
+    public Mono<Boolean> cartIsEmpty() {
+        return securityService.getCurrentUserId()
+                .map(userId -> cart.getOrDefault(userId, new HashMap<>())
+                        .isEmpty()
+                );
+    }
+
+    private ItemDto convertItemWithCartCount(ItemDto item, Map<Long, Integer> userCart) {
+        item.setCount(userCart.computeIfAbsent(item.getId(), k -> 0));
         return item;
-    }
-
-    public Mono<Boolean> isCartEmpty() {
-        return Mono.just(cart.keySet().isEmpty());
     }
 }

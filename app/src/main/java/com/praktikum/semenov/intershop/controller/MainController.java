@@ -1,13 +1,11 @@
 package com.praktikum.semenov.intershop.controller;
 
-import com.praktikum.semenov.intershop.dto.CartAction;
 import com.praktikum.semenov.intershop.dto.PagingModel;
 import com.praktikum.semenov.intershop.dto.SortDto;
 import com.praktikum.semenov.intershop.entity.Item;
 import com.praktikum.semenov.intershop.service.CartService;
 import com.praktikum.semenov.intershop.service.ItemService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;

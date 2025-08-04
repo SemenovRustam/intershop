@@ -30,6 +30,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
     private final PayService payService;
+    private final SecurityService securityService;
 
     public Mono<Order> createOrder() {
         return cartService.getAllCartItems()
@@ -54,10 +55,13 @@ public class OrderService {
                         Order order = new Order();
                         order.setTotalSum(totalPrice);
 
-                        // Сохраняем заказ без items, чтобы получить ID
-                        return orderRepository.save(order)
+                        // Получаем userId и сохраняем заказ с ним
+                        return securityService.getCurrentUserId()
+                                .flatMap(userId -> {
+                                    order.setUserId(userId); // вероятно, поле называется userId, а не id
+                                    return orderRepository.save(order);
+                                })
                                 .flatMap(savedOrder -> {
-                                    // Для каждого Item создаём OrderItem с savedOrder.getId()
                                     List<Mono<OrderItem>> orderItemsSaves = items.stream()
                                             .map(item -> {
                                                 OrderItem orderItem = new OrderItem();
@@ -67,16 +71,15 @@ public class OrderService {
                                             })
                                             .toList();
 
-                                    // Сохраняем все связи, ждём их завершения
                                     return Flux.concat(orderItemsSaves)
-                                            .then(cartService.clearCart())  // очищаем корзину после сохранения связей
-                                            .thenReturn(savedOrder);        // возвращаем сохранённый заказ
+                                            .then(cartService.clearUserCart())
+                                            .thenReturn(savedOrder);
                                 });
                     });
                 });
     }
 
-//    @Transactional(readOnly = true)
+
     public Flux<OrderDto> getAllOrders() {
         return orderRepository.findAll()
                 .flatMap(order -> orderItemRepository.findItemsByOrderId(order.getId())
@@ -85,6 +88,17 @@ public class OrderService {
                         .collectList()
                         .map(items -> new OrderDto(order.getId(), order.getTotalSum(), items))
                 );
+    }
+
+    public Flux<OrderDto> getAllOrdersByUser() {
+        return securityService.getCurrentUserId()
+                .flatMapMany(userId -> orderRepository.findAllOrderByUserId(userId)
+                        .flatMap(order -> orderItemRepository.findItemsByOrderId(order.getId())
+                                .flatMap(item -> itemRepository.findById(item.getId()))
+                                .map(mapper::toItemDto)
+                                .collectList()
+                                .map(items -> new OrderDto(order.getId(), order.getTotalSum(), items))
+                        ));
     }
 
 

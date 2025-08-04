@@ -1,15 +1,19 @@
+version: '3.8'
+
 services:
   app:
     container_name: app
     build: app
     ports:
-      - '8080:8080'
+      - '8085:8080'
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
       pay:
+        condition: service_started
+      keycloak:
         condition: service_started
     environment:
       SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/intershop
@@ -21,12 +25,18 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       PAY_SERVICE_BASE_URL: http://pay:8081/api/v1/pay
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/intershop
 
   pay:
     container_name: pay
     build: pay
     ports:
       - '8081:8081'
+    depends_on:
+      keycloak:
+        condition: service_started
+    environment:
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/intershop
 
   postgres:
     image: postgres:latest
@@ -57,6 +67,30 @@ services:
       - '6379:6379'
     volumes:
       - redisdata:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    environment:
+      KC_DB: dev-mem
+      KC_LOG_LEVEL: INFO
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_IMPORT: "true"
+      KC_IMPORT_REALM: /opt/keycloak/realm-export.json
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    command:
+      - start-dev
+      - --import-realm
+    ports:
+      - '8082:8080'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

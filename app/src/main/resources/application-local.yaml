@@ -1,7 +1,3 @@
-pay:
-  service:
-    base-url: http://localhost:8081/api/v1/pay
-
 spring:
   security:
     oauth2:

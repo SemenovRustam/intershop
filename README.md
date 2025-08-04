@@ -56,3 +56,5 @@ docker-compose up --build
    Основные эндпоинты:
    /cart/items — управление товарами в корзине
    /main/items — просмотр товаров
+6. ##### Security
+   Пароль для теста admin/admin

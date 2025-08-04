@@ -1,0 +1,1 @@
+alter table orders add column user_id BIGINT NOT NULL DEFAULT 0;
